@@ -7,6 +7,7 @@ let currentMode = DEFAULT_MODE;
 let currentSize = DEFAULT_SIZE;
 
 let mouseDown = false;
+let cells = [];
 
 const colorPicker = document.getElementById('colorPicker');
 const btnColor = document.getElementById('btnColor');
@@ -62,28 +63,34 @@ function clearGrid() {
 function setupGrid(size) {
     grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     grid.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+    cells = [];
 
     for (let i = 0; i < size * size; i++) {
+        const cell = { color: '#fefefe' };
         const gridElement = document.createElement('div');
         gridElement.classList.add('grid-element');
-        gridElement.addEventListener('mouseover', changeColor);
-        gridElement.addEventListener('mousedown', changeColor);
+        gridElement.addEventListener('mouseover', (e) => changeColor(e, i));
+        gridElement.addEventListener('mousedown', (e) => changeColor(e, i));
         grid.appendChild(gridElement);
+        cells.push({ element: gridElement, ...cell });
     }
 }
 
-function changeColor(e) {
+function changeColor(e, index) {
     if (e.type === 'mouseover' && !mouseDown) return;
+    let newColor;
     if (currentMode === 'rainbow') {
         const randomR = Math.floor(Math.random() * 256);
         const randomG = Math.floor(Math.random() * 256);
         const randomB = Math.floor(Math.random() * 256);
-        e.target.style.backgroundColor = `rgb(${randomR}, ${randomG}, ${randomB})`;
+        newColor = `rgb(${randomR}, ${randomG}, ${randomB})`;
     } else if (currentMode === 'color') {
-        e.target.style.backgroundColor = currentColor;
+        newColor = currentColor;
     } else if (currentMode === 'eraser') {
-        e.target.style.backgroundColor = '#fefefe';
+        newColor = '#fefefe';
     }
+    cells[index].color = newColor;
+    cells[index].element.style.backgroundColor = newColor;
 }
 
 function activateButton(newMode) {
